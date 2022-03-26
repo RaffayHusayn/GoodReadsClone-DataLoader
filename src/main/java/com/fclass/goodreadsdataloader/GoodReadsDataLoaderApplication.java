@@ -15,6 +15,11 @@ public class GoodReadsDataLoaderApplication {
     public static void main(String[] args) {
         SpringApplication.run(GoodReadsDataLoaderApplication.class, args);
     }
+
+    /*
+    Using the downloaded Secure-Connect-Goodreads bundle to connect this SpringBoot
+    application to the remote Astra.Datastax instance
+     */
     @Bean
     public CqlSessionBuilderCustomizer sessionBuilderCustomizer(DataStaxAstraProperties astraProperties) {
         Path bundle = astraProperties.getSecureConnectBundle().toPath();
