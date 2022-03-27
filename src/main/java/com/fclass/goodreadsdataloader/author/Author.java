@@ -44,4 +44,13 @@ public class Author {
     public void setPersonalName(String personalName) {
         this.personalName = personalName;
     }
+
+    public Author(String id, String name, String personalName) {
+        this.id = id;
+        this.name = name;
+        this.personalName = personalName;
+    }
+
+    public Author() {
+    }
 }
