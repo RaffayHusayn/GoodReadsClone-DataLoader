@@ -2,6 +2,8 @@ package com.fclass.goodreadsdataloader;
 
 import com.fclass.goodreadsdataloader.author.Author;
 import com.fclass.goodreadsdataloader.author.AuthorRepository;
+import com.fclass.goodreadsdataloader.works.Work;
+import com.fclass.goodreadsdataloader.works.WorkRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.util.stream.Stream;
 //@EnableConfigurationProperties(DataStaxAstraProperties.class)
 public class GoodReadsDataLoaderApplication {
     private AuthorRepository authorRepository;
+    private WorkRepository workRepository;
     @Value("${datadump.location.authors}")
     private String authorsDumpLocation;
     @Value("${datadump.location.works}")
@@ -31,6 +34,30 @@ public class GoodReadsDataLoaderApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GoodReadsDataLoaderApplication.class, args);
+
+//        Path path = Paths.get("test-works.txt");
+//        try(Stream<String>lines = Files.lines(path)){
+//            lines.forEach(line->{
+//                //1. Read and Parse each line
+//                String jsonString = line.substring(line.indexOf("{"));
+//
+//                try{
+//                    JSONObject jsonObject = new JSONObject(jsonString);
+////                    Work work = new Work();
+////                    work.setId(jsonObject.optString("key").replace("/works/", ""));
+////                    work.setTitle(jsonObject.optString("title"));
+////                    work.setAuthorId(jsonObject.getJSONArray("authors").getJSONObject(0).optString("key"));
+//                    String authorId = String.valueOf(jsonObject.getJSONArray("authors").getJSONObject(0).getJSONObject("author").optString("key").replace("/authors/",""));
+//                    System.out.println(authorId);
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            });
+//
+//        }catch(IOException ioe){
+//            ioe.printStackTrace();
+//        }
 
     }
 
@@ -40,6 +67,10 @@ public class GoodReadsDataLoaderApplication {
         this.authorRepository = authorRepository;
     }
 
+    @Autowired
+    public void setWorkRepository(WorkRepository workRepository){
+        this.workRepository = workRepository;
+    }
     /*
     ================================================================================
         Adding manually created Authors in 2 ways:
@@ -57,7 +88,8 @@ public class GoodReadsDataLoaderApplication {
 //        author.setName("raffay");
 //        author.setPersonalName("personal raffay");
 //        authorRepository.save(author);
-        intiAuthors();
+        initAuthors();
+        initWork();
         System.out.println("done");
     }
 
@@ -82,7 +114,7 @@ public class GoodReadsDataLoaderApplication {
     }
 
 
-    private void intiAuthors(){
+    private void initAuthors(){
         Path path = Paths.get(authorsDumpLocation);
             try (Stream<String> lines = Files.lines(path)) {
                 System.out.println("We have the lines");
@@ -111,6 +143,38 @@ public class GoodReadsDataLoaderApplication {
                 ioe.printStackTrace();
             }
 
+    }
+
+    private void initWork(){
+        Path path = Paths.get(worksDumpLocation);
+        try(Stream<String> lines = Files.lines(path)){
+            lines.forEach(line->{
+                //1. Read and Parse each line
+                String jsonString = line.substring(line.indexOf("{"));
+                System.out.println("JSON work string : " + jsonString);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(jsonString);
+
+                    //2. Construct Work Object
+                    Work work = new Work();
+                    work.setId(jsonObject.optString("key").replace("/works/", ""));
+                    work.setTitle(jsonObject.optString("title"));
+                    work.setAuthorId(jsonObject.getJSONArray("authors").getJSONObject(0).getJSONObject("author").optString("key").replace("/authors/",""));
+                    System.out.println("author Id : "+ work.getAuthorId());
+
+                    //3. Save Work Object in the remote instance using workRepository
+                    workRepository.save(work);
+
+                }catch(JSONException e){
+                    e.printStackTrace();
+                }
+
+            });
+
+        }catch(IOException ioe){
+            ioe.printStackTrace();
+        }
     }
 
 
