@@ -34,3 +34,8 @@ build/
 
 ### Secure Bundle ###
 /src/main/resources/secure-connect-goodreads.zip
+
+
+### Book And Author Information ###
+test-authors.txt
+test-works.txt
