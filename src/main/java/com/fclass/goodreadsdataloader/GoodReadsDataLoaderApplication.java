@@ -212,6 +212,7 @@ public class GoodReadsDataLoaderApplication {
                     }
 
                     //3. Save Work Object in the remote instance using workRepository
+                    System.out.println("saving work : "+ work.getTitle());
                     workRepository.save(work);
 
                 }catch(JSONException e){
